@@ -34,7 +34,7 @@ func SendError(err error, w http.ResponseWriter) {
 		}
 	}
 	w.WriteHeader(http.StatusInternalServerError)
-	w.Write([]byte("Internal server error"))
+	w.Write([]byte("{ \"error\": \"internal server error\" }"))
 }
 
 func HandlerWrapper(req Request) func(w http.ResponseWriter, r *http.Request) {
