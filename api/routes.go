@@ -38,9 +38,7 @@ func GetRoutes(c *config.Config, dis *dispatcher.Dispatcher, rc *dispatcher.Redi
 			HandlerFunc: utils.HandlerWrapper(
 				methods.NewTestRoute(),
 			),
-			Middlewares: append(baseMiddlewares, []func(next http.Handler) http.Handler{
-				middlewares.NewAuthMiddleware(c, "admin"),
-			}...),
+			Middlewares: append(baseMiddlewares),
 		},
 	}
 }
