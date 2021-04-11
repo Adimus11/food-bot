@@ -1,0 +1,24 @@
+version: '3'
+services:
+  web:
+    build: .
+    volumes:
+      - go-modules:/go/pkg/mod
+    ports:
+     - "8080:8080"
+    links:
+      - postgres-db
+      - redisdb
+
+
+  redisdb:
+    image: redis:5.0.6
+
+  postgres-db:
+    build: ./db_config
+    volumes:
+      - psqldb-fooder:/data/psqldb
+
+volumes:
+  psqldb-fooder:
+  go-modules:
