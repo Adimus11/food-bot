@@ -5,26 +5,40 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type ApiResponse struct {
 	StatusCode int
-	Response   json.RawMessage
+	Response   interface{}
+	Cookies    []*http.Cookie
 }
 
 type Request interface {
 	Payload() interface{}
-	Do(ctx context.Context, payload interface{}) (*ApiResponse, error)
+	Do(ctx context.Context, vars map[string]string, payload interface{}) (*ApiResponse, error)
 }
 
 func SendJSON(resp *ApiResponse, w http.ResponseWriter) {
+	bytesResponse, err := json.Marshal(resp.Response)
+	if err != nil {
+		SendError(err, w)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
+
+	for _, cookie := range resp.Cookies {
+		http.SetCookie(w, cookie)
+	}
+
 	w.WriteHeader(resp.StatusCode)
-	w.Write(resp.Response)
+	w.Write(bytesResponse)
 }
 
 func SendError(err error, w http.ResponseWriter) {
-	fmt.Println(err.Error())
+	fmt.Printf("Error during processing: %s\n", err)
 	w.Header().Set("Content-Type", "application/json")
 	if apiError, ok := err.(*ApiError); ok {
 		if marshaledError, err := json.Marshal(apiError); err == nil {
@@ -42,11 +56,12 @@ func HandlerWrapper(req Request) func(w http.ResponseWriter, r *http.Request) {
 		payload := req.Payload()
 
 		if r.Method == "OPTIONS" {
+			w.Write([]byte(""))
 			w.WriteHeader(http.StatusOK)
 			return
 		}
 
-		if r.Method == "POST" || r.Method == "PUT" {
+		if r.Method != http.MethodDelete && r.Method != http.MethodGet && r.Method != http.MethodOptions {
 			decoder := json.NewDecoder(r.Body)
 			err := decoder.Decode(&payload)
 			if err != nil {
@@ -55,7 +70,7 @@ func HandlerWrapper(req Request) func(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		resp, err := req.Do(r.Context(), payload)
+		resp, err := req.Do(r.Context(), mux.Vars(r), payload)
 		if err != nil {
 			SendError(err, w)
 			return

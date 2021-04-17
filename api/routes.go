@@ -5,7 +5,6 @@ import (
 	"fooder/api/middlewares"
 	"fooder/api/utils"
 	"fooder/config"
-	"fooder/dispatcher"
 	"net/http"
 	"os"
 
@@ -20,25 +19,41 @@ type Route struct {
 	Middlewares []func(next http.Handler) http.Handler
 }
 
-var baseMiddlewares []func(next http.Handler) http.Handler = []func(next http.Handler) http.Handler{
-	func(next http.Handler) http.Handler {
-		return handlers.CombinedLoggingHandler(os.Stderr, next)
-	},
-	middlewares.NewCORSMiddleware(),
+func NewBaseMiddlewares() []func(next http.Handler) http.Handler {
+	meth := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"})
+	origin := handlers.AllowedOrigins([]string{"*"})
+	header := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization", "Access-Control-Allow-Credentials", "Access-Control-Allow-Origin"})
+	credentials := handlers.AllowCredentials()
+
+	return []func(next http.Handler) http.Handler{
+		func(next http.Handler) http.Handler {
+			return handlers.CombinedLoggingHandler(os.Stderr, next)
+		},
+		handlers.CORS(header, meth, origin, credentials),
+	}
 }
 
-type Routes []Route
+type Routes []*Route
 
-func GetRoutes(c *config.Config, dis *dispatcher.Dispatcher, rc *dispatcher.RedisConsumer) Routes {
+func GetRoutes(c *config.Config, api *API) Routes {
 	return Routes{
-		Route{
+		&Route{
 			Name:    "Test Route",
 			Method:  "GET",
 			Pattern: "/ping", //tested
 			HandlerFunc: utils.HandlerWrapper(
 				methods.NewTestRoute(),
 			),
-			Middlewares: append(baseMiddlewares),
+			Middlewares: NewBaseMiddlewares(),
+		},
+		&Route{
+			Name:    "Auth Route",
+			Method:  "POST",
+			Pattern: "/auth",
+			HandlerFunc: utils.HandlerWrapper(
+				methods.NewAuthUserRoute(api.UsersRepository),
+			),
+			Middlewares: append(NewBaseMiddlewares(), middlewares.NewSessionMiddleware()),
 		},
 	}
 }

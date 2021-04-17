@@ -3,11 +3,14 @@ package middlewares
 import (
 	"fooder/api/utils"
 	"fooder/config"
+	"fooder/repositories/models"
 	"net/http"
 	"strings"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
-func NewAuthMiddleware(c *config.Config, requiredUserType string) func(next http.Handler) http.Handler {
+func NewAuthMiddleware(c *config.Config) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -26,32 +29,26 @@ func NewAuthMiddleware(c *config.Config, requiredUserType string) func(next http
 				return
 			}
 
-			// tokenPart := splitted[1]
-			// tk := &models.Token{}
+			tokenPart := splitted[1]
+			tk := &models.Token{}
 
-			// token, err := jwt.ParseWithClaims(tokenPart, tk, func(token *jwt.Token) (interface{}, error) {
-			// 	return []byte(c.Auth.JWTPassword), nil
-			// })
+			token, err := jwt.ParseWithClaims(tokenPart, tk, func(token *jwt.Token) (interface{}, error) {
+				return []byte(c.Auth.JWTPassword), nil
+			})
 
-			// if err != nil {
-			// 	errResponse := utils.NewApiError(http.StatusUnauthorized, "Malformed authentication token")
-			// 	utils.SendError(errResponse, w)
-			// 	return
-			// }
+			if err != nil {
+				errResponse := utils.NewApiError(http.StatusUnauthorized, "Malformed authentication token")
+				utils.SendError(errResponse, w)
+				return
+			}
 
-			// if !token.Valid {
-			// 	errResponse := utils.NewApiError(http.StatusForbidden, "Token is invalid")
-			// 	utils.SendError(errResponse, w)
-			// 	return
-			// }
+			if !token.Valid {
+				errResponse := utils.NewApiError(http.StatusForbidden, "Token is invalid")
+				utils.SendError(errResponse, w)
+				return
+			}
 
-			// if tk.UserType != requiredUserType {
-			// 	errResponse := utils.NewApiError(http.StatusForbidden, "Invalid user type")
-			// 	utils.SendError(errResponse, w)
-			// 	return
-			// }
-
-			// r = r.WithContext(utils.CreateContextWithToken(r.Context(), tk))
+			r = r.WithContext(utils.CreateContextWithToken(r.Context(), tk))
 			next.ServeHTTP(w, r)
 		})
 	}

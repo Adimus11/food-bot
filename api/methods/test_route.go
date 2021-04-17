@@ -25,7 +25,7 @@ func (t *TestRoute) Payload() interface{} {
 	return &TestRoutePayload{}
 }
 
-func (t *TestRoute) Do(ctx context.Context, payload interface{}) (*utils.ApiResponse, error) {
+func (t *TestRoute) Do(ctx context.Context, vars map[string]string, payload interface{}) (*utils.ApiResponse, error) {
 	response := &TestRouteResponse{
 		Status: "ok",
 	}

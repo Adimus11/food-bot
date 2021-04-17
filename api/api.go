@@ -2,16 +2,20 @@ package api
 
 import (
 	"fooder/config"
-	"fooder/dispatcher"
+	"fooder/repositories"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
 
-func NewRouter(config *config.Config, dispatcher *dispatcher.Dispatcher, rc *dispatcher.RedisConsumer) *mux.Router {
+type API struct {
+	UsersRepository *repositories.UserRepository
+}
+
+func NewRouter(config *config.Config, api *API) *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
-	for _, route := range GetRoutes(config, dispatcher, rc) {
+	for _, route := range GetRoutes(config, api) {
 		var handler http.Handler
 		log.Println(route.Name)
 		handler = route.HandlerFunc

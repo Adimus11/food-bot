@@ -5,7 +5,8 @@ import (
 	"fooder/api"
 	"fooder/config"
 	"fooder/db"
-	"fooder/dispatcher"
+	"fooder/repositories"
+	"fooder/repositories/models"
 	"log"
 	"net/http"
 	"time"
@@ -22,13 +23,17 @@ func main() {
 		log.Panic(err.Error())
 	}
 
-	_, err = db.InitDB(config)
+	dbClient, err := db.InitDB(config)
 	if err != nil {
 		log.Panic(err.Error())
 	}
 
-	dis := dispatcher.NewDispatcher()
-	rc := dispatcher.NewRedisConsumer(config.Services.Redis.URL, dis)
-	router := api.NewRouter(config, dis, rc)
+	models.DoMIgration(dbClient)
+
+	apiApp := &api.API{
+		UsersRepository: repositories.NewUserRepository(dbClient),
+	}
+
+	router := api.NewRouter(config, apiApp)
 	log.Fatal(http.ListenAndServe(":8080", handlers.CORS(handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}), handlers.AllowedMethods([]string{"GET", "POST", "PUT", "OPTIONS"}), handlers.AllowedOrigins([]string{"*"}))(router)))
 }
