@@ -1,8 +1,7 @@
 package models
 
 import (
-	"encoding/json"
-	"fooder/objects"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
@@ -15,45 +14,13 @@ const (
 	ChatInactive = "chat_inactive"
 )
 
-type Event struct {
-	gorm.Model
-	ChatID     string          `json:"-" gorm:"foreignKey:ChatID"`
-	Type       string          `json:"type"`
-	AuthorID   string          `json:"author_id"`
-	Body       json.RawMessage `json:"-"`
-	ParsedBody interface{}     `sql:"-" json:"body"`
-
-	CreationTimestamp uint64 `json:"creation_timestamp"`
-}
-
-func (e *Event) ParseEvent() error {
-	var eventBody interface{}
-	switch e.Type {
-	case objects.CardEventType:
-		eventBody = &objects.CardEvent{}
-	case objects.ChatIdleEventType:
-		eventBody = &objects.ChatIdleEvent{}
-	case objects.MessageEventType:
-		eventBody = &objects.MessageEvent{}
-	case objects.RatingRequestedEventType, objects.RatingSetEventType:
-		eventBody = &objects.RatingEvent{}
-	}
-
-	if err := json.Unmarshal(e.Body, &eventBody); err != nil {
-		return err
-	}
-
-	e.ParsedBody = eventBody
-	return nil
-}
-
 type Chat struct {
 	gorm.Model
 	DB     *gorm.DB `sql:"-"`
 	UserID string
 	ChatID string
 	State  string
-	Events []*Event
+	Events []*Event `gorm:"foreignKey:ChatID;references:ChatID"`
 }
 
 func NewChat(userID string, db *gorm.DB) *Chat {
@@ -66,11 +33,13 @@ func NewChat(userID string, db *gorm.DB) *Chat {
 	}
 }
 
-func (c *Chat) ParseEvents() error {
-	for _, e := range c.Events {
-		if err := e.ParseEvent(); err != nil {
-			return err
-		}
+func (c *Chat) AddEvent(e *Event, userID string) error {
+	e.CreationTimestamp = uint64(time.Now().Nanosecond())
+	e.AuthorID = userID
+	e.ChatID = c.ChatID
+
+	if err := c.DB.Save(e).Error; err != nil {
+		return err
 	}
 
 	return nil

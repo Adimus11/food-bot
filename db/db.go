@@ -27,5 +27,5 @@ func InitDB(c *config.Config) (*gorm.DB, error) {
 		return nil, err
 	}
 	db = conn
-	return conn, nil
+	return conn.Set("gorm:auto_preload", true), nil
 }

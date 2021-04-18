@@ -40,10 +40,6 @@ func (t *HistoryRoute) Do(ctx context.Context, vars map[string]string, payload i
 		return nil, err
 	}
 
-	if err := chat.ParseEvents(); err != nil {
-		return nil, err
-	}
-
 	return &utils.ApiResponse{
 		StatusCode: http.StatusOK,
 		Response:   chat.Events,

@@ -37,3 +37,7 @@ var EventTypes = []string{
 	RatingSetEventType,
 	ChatIdleEventType,
 }
+
+type StatusResponse struct {
+	Status string `json:"status"`
+}

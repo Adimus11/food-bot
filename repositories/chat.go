@@ -22,6 +22,12 @@ func (cr *ChatsRepository) GetChat(userID string) (*models.Chat, error) {
 		return chat, errs.ErrNotFound
 	}
 
+	events := []*models.Event{}
+	if err := cr.db.Find(&events, "chat_id = ?", chat.ChatID).Error; err != nil {
+		return nil, err
+	}
+	chat.Events = events
+
 	return chat, err
 }
 
