@@ -10,8 +10,10 @@ import (
 type ChatState string
 
 const (
-	ChatStarted  = "chat_started"
-	ChatInactive = "chat_inactive"
+	ChatStarted           = "chat_started"
+	WaitingForIngredients = "chat_ingredients"
+	WaitingForReview      = "chat_review"
+	ChatInactive          = "chat_inactive"
 )
 
 type Chat struct {
@@ -43,4 +45,9 @@ func (c *Chat) AddEvent(e *Event, userID string) error {
 	}
 
 	return nil
+}
+
+func (c *Chat) SetState(state string) error {
+	c.State = state
+	return c.DB.Save(c).Error
 }

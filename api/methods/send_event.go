@@ -8,20 +8,22 @@ import (
 	"fooder/objects"
 	"fooder/repositories"
 	"fooder/repositories/models"
+	"fooder/services"
 	"net/http"
 	"strings"
 )
 
 type SendEventRoute struct {
-	cr *repositories.ChatsRepository
+	cr         *repositories.ChatsRepository
+	botService *services.BotService
 }
 
 type SendEventRoutePayload struct {
 	*models.Event
 }
 
-func NewSendEventRoute(cr *repositories.ChatsRepository) *SendEventRoute {
-	return &SendEventRoute{cr}
+func NewSendEventRoute(cr *repositories.ChatsRepository, botService *services.BotService) *SendEventRoute {
+	return &SendEventRoute{cr, botService}
 }
 
 func (t *SendEventRoute) Payload() interface{} {
@@ -82,10 +84,13 @@ func (t *SendEventRoute) Do(ctx context.Context, vars map[string]string, payload
 		return nil, err
 	}
 
-	// Generate bots response and send it
+	responseEvent, err := t.botService.RespondForEvent(chat, event.Event)
+	if err != nil {
+		return nil, err
+	}
 
 	return &utils.ApiResponse{
 		StatusCode: http.StatusOK,
-		Response:   &objects.StatusResponse{Status: "OK"},
+		Response:   []*models.Event{responseEvent},
 	}, nil
 }

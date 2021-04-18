@@ -7,6 +7,7 @@ import (
 	"fooder/db"
 	"fooder/repositories"
 	"fooder/repositories/models"
+	"fooder/services"
 	"log"
 	"net/http"
 	"time"
@@ -34,6 +35,8 @@ func main() {
 		UsersRepository: repositories.NewUsersRepository(dbClient),
 		ChatsRepository: repositories.NewChatsRepository(dbClient),
 	}
+
+	apiApp.BotService = services.NewBotService(apiApp.ChatsRepository)
 
 	router := api.NewRouter(config, apiApp)
 	log.Fatal(http.ListenAndServe(":8080", handlers.CORS(handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}), handlers.AllowedMethods([]string{"GET", "POST", "PUT", "OPTIONS"}), handlers.AllowedOrigins([]string{"*"}))(router)))

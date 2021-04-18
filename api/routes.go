@@ -69,7 +69,7 @@ func GetRoutes(c *config.Config, api *API) Routes {
 			Method:  http.MethodPost,
 			Pattern: "/add_event",
 			HandlerFunc: utils.HandlerWrapper(
-				methods.NewSendEventRoute(api.ChatsRepository),
+				methods.NewSendEventRoute(api.ChatsRepository, api.BotService),
 			),
 			Middlewares: append(NewBaseMiddlewares(), middlewares.NewAuthMiddleware(config.RetreiveConfig())),
 		},
