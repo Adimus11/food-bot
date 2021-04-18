@@ -20,7 +20,8 @@ Returns `Bearer` authorization token and sets user uniqe cookie
 
 ```
 {
-    "token": "fdsfdsfdsfdsfas"
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOiIzNzJlMDM2ZS00OWEzLTQyMDctYTYyOS0wN2Y5NzlmM2ZhNTgifQ.bpx8Ry1QjhDB_q4Am6n0hYGJ4QwXV9HIp_hKkAp-_OU",
+    "user_id": "372e036e-49a3-4207-a629-07f979f3fa58"
 }
 ```
 
@@ -32,50 +33,69 @@ Return whole user chat history with all events
 [
     {
         "type": "message",
+        "author_id": "372e036e-49a3-4207-a629-07f979f3fa58",
         "body": {
-            "test": "Hi!"
-        }
+            "message": "Helo elo 2"
+        },
+        "creation_timestamp": 656265007
     },
-    ...
+    {
+        "type": "card",
+        "author_id": "bot",
+        "body": {
+            "img": "https://images.immediate.co.uk/production/volatile/sites/30/2020/08/recipe-image-legacy-id-1201452_12-7f7a0fa.jpg?quality=90&webp=true&resize=440,400",
+            "link": "https://www.bbcgoodfood.com/recipes/perfect-scrambled-eggs-recipe",
+            "dish_id": "tmp",
+            "title_id": "Scrambled Eggs",
+            "description": "Simple but nutritious dish"
+        },
+        "creation_timestamp": 665149383
+    },
+    {
+        "type": "message",
+        "author_id": "372e036e-49a3-4207-a629-07f979f3fa58",
+        "body": {
+            "message": "Helo elo 2"
+        },
+        "creation_timestamp": 317486182
+    },
+    {
+        "type": "message",
+        "author_id": "bot",
+        "body": {
+            "message": "Thanks for you opinion, remember I'm always here for you to help"
+        },
+        "creation_timestamp": 354581260
+    }
 ]
 ```
 
 ### POST /send_event
 
-Method used to set events, returns just confirmation if everything went smooth.
+Method used to set events, returns bot response in form of array of events event.
 
 Request:
 ```
 {
-    "type": "event_type",
+    "type": "message",
     "body": {
-        // Event body
+        "message": "Helo elo 2"
     }
 }
 ```
 
 Response:
 ```
-{
-    "status": "OK"
-}
-```
-
-## WebSocket
-
-WebSocket connection is used to update client with events send in chat.
-Connection allows for following methods
-### Login
-
-Used to log user in
-
-```
-{
-    "action": "login",
-    "payload": {
-        "token": "fdsdfsd"
+[
+    {
+        "type": "message",
+        "author_id": "bot",
+        "body": {
+            "message": "Thanks for you opinion, remember I'm always here for you to help"
+        },
+        "creation_timestamp": 354581260
     }
-}
+]
 ```
 
 ### Events
@@ -122,7 +142,7 @@ Type: `card`
 }
 ```
 
-### Rating Requested
+### Rating Requested [not implemented]
 
 Type: `rating_requested`
 
@@ -132,7 +152,7 @@ Type: `rating_requested`
 }
 ```
 
-### Rating Set
+### Rating Set [not implemented]
 
 Type: `rating_set`
 
@@ -140,6 +160,16 @@ Type: `rating_set`
 {
     "dish_id": "XXXX"
     "rating": 4 // from 1-5
+}
+```
+
+### System Status [not implemented]
+
+Type: `status_changed`
+
+```
+{
+    "information": "Chat went inactive"
 }
 ```
 

@@ -49,5 +49,5 @@ func (c *Chat) AddEvent(e *Event, userID string) error {
 
 func (c *Chat) SetState(state string) error {
 	c.State = state
-	return c.DB.Save(c).Error
+	return c.DB.Model(&Chat{}).Where("chat_id = ?", c.ChatID).Update("state", state).Error
 }
