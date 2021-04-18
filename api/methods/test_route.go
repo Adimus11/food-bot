@@ -2,7 +2,6 @@ package methods
 
 import (
 	"context"
-	"encoding/json"
 	"fooder/api/utils"
 	"net/http"
 )
@@ -26,16 +25,10 @@ func (t *TestRoute) Payload() interface{} {
 }
 
 func (t *TestRoute) Do(ctx context.Context, vars map[string]string, payload interface{}) (*utils.ApiResponse, error) {
-	response := &TestRouteResponse{
-		Status: "ok",
-	}
-	marshaledResp, err := json.Marshal(response)
-	if err != nil {
-		return nil, err
-	}
-
 	return &utils.ApiResponse{
 		StatusCode: http.StatusOK,
-		Response:   marshaledResp,
+		Response: &TestRouteResponse{
+			Status: "ok",
+		},
 	}, nil
 }
