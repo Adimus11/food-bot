@@ -10,7 +10,8 @@ import (
 )
 
 type API struct {
-	UsersRepository *repositories.UserRepository
+	UsersRepository *repositories.UsersRepository
+	ChatsRepository *repositories.ChatsRepository
 }
 
 func NewRouter(config *config.Config, api *API) *mux.Router {

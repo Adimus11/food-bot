@@ -1,6 +1,6 @@
 module fooder
 
-go 1.13
+go 1.14
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -12,5 +12,6 @@ require (
 	github.com/gorilla/schema v1.1.0 // indirect
 	github.com/gorilla/websocket v1.4.1
 	github.com/jinzhu/gorm v1.9.11
+	github.com/lib/pq v1.1.1
 	github.com/speps/go-hashids v2.0.0+incompatible // indirect
 )

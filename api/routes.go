@@ -39,7 +39,7 @@ func GetRoutes(c *config.Config, api *API) Routes {
 	return Routes{
 		&Route{
 			Name:    "Test Route",
-			Method:  "GET",
+			Method:  http.MethodGet,
 			Pattern: "/ping", //tested
 			HandlerFunc: utils.HandlerWrapper(
 				methods.NewTestRoute(),
@@ -48,12 +48,21 @@ func GetRoutes(c *config.Config, api *API) Routes {
 		},
 		&Route{
 			Name:    "Auth Route",
-			Method:  "POST",
+			Method:  http.MethodPost,
 			Pattern: "/auth",
 			HandlerFunc: utils.HandlerWrapper(
 				methods.NewAuthUserRoute(api.UsersRepository),
 			),
 			Middlewares: append(NewBaseMiddlewares(), middlewares.NewSessionMiddleware()),
+		},
+		&Route{
+			Name:    "History Route",
+			Method:  http.MethodGet,
+			Pattern: "/history",
+			HandlerFunc: utils.HandlerWrapper(
+				methods.NewHistoryRoute(api.ChatsRepository),
+			),
+			Middlewares: append(NewBaseMiddlewares(), middlewares.NewAuthMiddleware(config.RetreiveConfig())),
 		},
 	}
 }

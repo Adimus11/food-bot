@@ -8,15 +8,15 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type UserRepository struct {
+type UsersRepository struct {
 	db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) *UserRepository {
-	return &UserRepository{db}
+func NewUsersRepository(db *gorm.DB) *UsersRepository {
+	return &UsersRepository{db}
 }
 
-func (ur *UserRepository) GetUser(id string) (*models.User, error) {
+func (ur *UsersRepository) GetUser(id string) (*models.User, error) {
 	if id == "" {
 		fmt.Println("mis")
 		id = uuid.New().String()

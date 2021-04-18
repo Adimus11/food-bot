@@ -10,7 +10,7 @@ import (
 )
 
 type AuthUserRoute struct {
-	ur *repositories.UserRepository
+	ur *repositories.UsersRepository
 }
 
 type AuthUserPayload struct{}
@@ -20,7 +20,7 @@ type AuthUserResponse struct {
 	UserID string `json:"user_id"`
 }
 
-func NewAuthUserRoute(ur *repositories.UserRepository) *AuthUserRoute {
+func NewAuthUserRoute(ur *repositories.UsersRepository) *AuthUserRoute {
 	return &AuthUserRoute{ur}
 }
 

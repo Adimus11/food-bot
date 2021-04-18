@@ -31,7 +31,8 @@ func main() {
 	models.DoMIgration(dbClient)
 
 	apiApp := &api.API{
-		UsersRepository: repositories.NewUserRepository(dbClient),
+		UsersRepository: repositories.NewUsersRepository(dbClient),
+		ChatsRepository: repositories.NewChatsRepository(dbClient),
 	}
 
 	router := api.NewRouter(config, apiApp)

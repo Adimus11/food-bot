@@ -9,7 +9,6 @@ import (
 
 type User struct {
 	gorm.Model
-	db     *gorm.DB `sql:"-"`
 	UserID string
 	ChatID string
 }
