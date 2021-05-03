@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package foodbot_grpc;
+
+option go_package = "fooder/services/conn_proto";
+
+service IngridientsService {
+  rpc GetIngridients(UserInput) returns (Ingridients) {}
+}
+
+message UserInput {
+  string text = 1;
+}
+
+message Ingridients {
+  repeated string ingridients = 1;
+}

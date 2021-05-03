@@ -10,7 +10,12 @@ services:
       - postgres-db
       - redisdb
       - elasticsearch
+      - nlp
 
+  nlp-service:
+    image: ./nlp_service/
+    ports:
+      - "9090:9090"
 
   redisdb:
     image: redis:5.0.6

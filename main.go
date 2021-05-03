@@ -13,6 +13,9 @@ import (
 	"time"
 
 	"github.com/gorilla/handlers"
+	"google.golang.org/grpc"
+
+	pb "fooder/services/proto"
 )
 
 func main() {
@@ -31,12 +34,21 @@ func main() {
 
 	models.DoMIgration(dbClient)
 
+	conn, err := grpc.Dial(config.Services.NLPService.URL, grpc.WithInsecure(), grpc.WithBlock())
+	if err != nil {
+		log.Panic("did not connect: %v", err)
+	}
+	defer conn.Close()
+
 	apiApp := &api.API{
 		UsersRepository: repositories.NewUsersRepository(dbClient),
 		ChatsRepository: repositories.NewChatsRepository(dbClient),
+		DishRepository:  repositories.NewDishesRepository(dbClient),
 	}
 
-	apiApp.BotService = services.NewBotService(apiApp.ChatsRepository)
+	nlpClient := pb.NewIngridientsServiceClient(conn)
+
+	apiApp.BotService = services.NewBotService(apiApp.ChatsRepository, nlpClient, apiApp.DishRepository)
 
 	router := api.NewRouter(config, apiApp)
 	log.Fatal(http.ListenAndServe(":8080", handlers.CORS(handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}), handlers.AllowedMethods([]string{"GET", "POST", "PUT", "OPTIONS"}), handlers.AllowedOrigins([]string{"*"}))(router)))

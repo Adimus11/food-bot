@@ -7,5 +7,6 @@ func DoMIgration(db *gorm.DB) {
 		&User{},
 		&Event{},
 		&Chat{},
+		&Dish{},
 	)
 }

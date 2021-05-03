@@ -10,10 +10,11 @@ import (
 type ChatState string
 
 const (
-	ChatStarted           = "chat_started"
-	WaitingForIngredients = "chat_ingredients"
-	WaitingForReview      = "chat_review"
-	ChatInactive          = "chat_inactive"
+	ChatStarted            = "chat_started"
+	WaitingForIngredients  = "chat_ingredients"
+	WaitingForChoosingDish = "chat_dish_choosing"
+	WaitingForReview       = "chat_review"
+	ChatInactive           = "chat_inactive"
 )
 
 type Chat struct {

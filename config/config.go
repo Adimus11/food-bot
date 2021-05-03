@@ -23,6 +23,9 @@ type Config struct {
 		Redis struct {
 			URL string `json:"url"`
 		} `json:"redis"`
+		NLPService struct {
+			URL string `json:"url"`
+		} `json:"nlp_service"`
 	} `json:"services"`
 }
 

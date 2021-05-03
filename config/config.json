@@ -13,6 +13,9 @@
         },
         "redis": {
             "url": "redisdb:6379"
+        },
+        "nlp_service": {
+            "url": "nlp:9090"
         }
     }
 }

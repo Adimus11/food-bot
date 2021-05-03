@@ -142,6 +142,29 @@ Type: `card`
 }
 ```
 
+### Select
+
+Type: `select`
+
+```
+{
+    "message": "Message with options".
+    "options": [
+        {
+            "option_id": 1,
+            "option_text": "Dish Name",
+            "dish_id": 123
+        },
+        ...
+    ],
+    "selected_option_id": 1 // Should be sent only when dish is selected
+}
+```
+
+If user clicks selected type then only "selected_option_id" should be sent
+
+
+
 ### Rating Requested [not implemented]
 
 Type: `rating_requested`

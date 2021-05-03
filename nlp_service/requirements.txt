@@ -1,0 +1,3 @@
+spacy==2.3.2
+joblib
+grpcio-tools

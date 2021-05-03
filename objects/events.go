@@ -36,8 +36,23 @@ var EventTypes = []string{
 	RatingRequestedEventType,
 	RatingSetEventType,
 	ChatIdleEventType,
+	SelectEventType,
 }
 
 type StatusResponse struct {
 	Status string `json:"status"`
+}
+
+const SelectEventType = "select"
+
+type DishSelection struct {
+	Message          string    `json:"message,omitempty"`
+	Options          []*Option `json:"options,omitempty"`
+	SelectedOptionID string    `json:"selected_option_id"`
+}
+
+type Option struct {
+	OptionID   int    `json:"option_id"`
+	OptionText string `json:"option_text"`
+	DishID     string `json:"dish_id"`
 }

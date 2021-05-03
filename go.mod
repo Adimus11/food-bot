@@ -14,4 +14,7 @@ require (
 	github.com/jinzhu/gorm v1.9.11
 	github.com/lib/pq v1.1.1
 	github.com/speps/go-hashids v2.0.0+incompatible // indirect
+	google.golang.org/grpc v1.32.0
+	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.1.0 // indirect
+	google.golang.org/protobuf v1.26.0
 )

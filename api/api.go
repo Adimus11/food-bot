@@ -13,6 +13,7 @@ import (
 type API struct {
 	UsersRepository *repositories.UsersRepository
 	ChatsRepository *repositories.ChatsRepository
+	DishRepository  *repositories.DishesRepository
 	BotService      *services.BotService
 }
 

@@ -9,6 +9,7 @@ var (
 	ErrNotFound                = errors.New("Resource not found")
 	ErrTokenNotInCtx           = errors.New("could not get token from ctx")
 	ErrWrongInterfaceAssertion = errors.New("wrong interfacer assertion")
+	ErrWrongMsgTypeInState     = errors.New("Couldn't this message type")
 )
 
 func WrongInterfaceError(object interface{}, target string) error {
