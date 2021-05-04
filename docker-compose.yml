@@ -12,8 +12,8 @@ services:
       - elasticsearch
       - nlp
 
-  nlp-service:
-    image: ./nlp_service/
+  nlp:
+    build: ./nlp_service
     ports:
       - "9090:9090"
 

@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"fmt"
 	"fooder/errs"
 	"fooder/repositories/models"
 	"sort"
@@ -89,6 +90,7 @@ func (dr *DishesRepository) GetDish(dishID string) (*models.Dish, error) {
 	dish := &models.Dish{}
 	err := dr.db.First(&dish, "dish_id = ?", dishID).Error
 	if err == gorm.ErrRecordNotFound {
+		fmt.Println("No dish")
 		return nil, errs.ErrNotFound
 	}
 

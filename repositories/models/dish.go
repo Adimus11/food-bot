@@ -11,11 +11,11 @@ import (
 type Dish struct {
 	gorm.Model
 	DishID      string         `json:"dish_id"`
-	Title       string         `json:"title_id"`
+	Title       string         `json:"title"`
 	Description string         `json:"description"`
 	Image       string         `json:"img"`
 	Link        string         `json:"link"`
-	Ingredients pq.StringArray `json:"ingredients,omitempty"`
+	Ingredients pq.StringArray `gorm:"type:text[]" json:"ingredients,omitempty"`
 }
 
 func NewDish(dish *Dish) *Dish {

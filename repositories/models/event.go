@@ -34,6 +34,8 @@ func (e *Event) ParseEvent() error {
 		eventBody = &objects.ChatIdleEvent{}
 	case objects.MessageEventType:
 		eventBody = &objects.MessageEvent{}
+	case objects.SelectEventType:
+		eventBody = &objects.DishSelection{}
 	case objects.RatingEventType:
 		eventBody = &objects.RatingEvent{}
 	}

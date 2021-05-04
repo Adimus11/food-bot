@@ -22,7 +22,7 @@ func (ur *UsersRepository) GetUser(id string) (*models.User, error) {
 		id = uuid.New().String()
 		fmt.Println(id)
 	}
-	u := &models.User{UserID: id}
+	u := &models.User{UserID: id, DB: ur.db}
 	if err := ur.db.Table("users").FirstOrCreate(&u, "user_id = ?", u.UserID).Error; err != nil {
 		return nil, err
 	}

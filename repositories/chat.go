@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"fmt"
 	"fooder/errs"
 	"fooder/repositories/models"
 
@@ -19,6 +20,7 @@ func (cr *ChatsRepository) GetChat(userID string) (*models.Chat, error) {
 	chat := &models.Chat{UserID: userID, DB: cr.db}
 	err := cr.db.Preload("Events").First(&chat, "user_id = ?", userID).Error
 	if err == gorm.ErrRecordNotFound {
+		fmt.Println("No chat 2")
 		return chat, errs.ErrNotFound
 	}
 
@@ -34,6 +36,7 @@ func (cr *ChatsRepository) GetChat(userID string) (*models.Chat, error) {
 func (cr *ChatsRepository) GetOrCreateChat(userID string) (*models.Chat, error) {
 	chat, err := cr.GetChat(userID)
 	if err == errs.ErrNotFound {
+		fmt.Println("No chat")
 		chat = models.NewChat(userID, cr.db)
 		if err := cr.db.Save(chat).Error; err != nil {
 			return nil, err

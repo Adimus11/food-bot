@@ -39,7 +39,7 @@ const SelectEventType = "select"
 
 type DishSelection struct {
 	Options          []*Option `json:"options,omitempty"`
-	SelectedOptionID *int      `json:"selected_option_id"`
+	SelectedOptionID *int      `json:"selected_option_id,omitempty"`
 }
 
 func (ds *DishSelection) GetDishIDForOption() string {

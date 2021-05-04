@@ -32,7 +32,7 @@ func main() {
 		log.Panic(err.Error())
 	}
 
-	models.DoMIgration(dbClient)
+	models.DoMigration(dbClient)
 
 	conn, err := grpc.Dial(config.Services.NLPService.URL, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {

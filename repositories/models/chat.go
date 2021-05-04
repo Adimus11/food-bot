@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"fooder/api/utils"
 	"fooder/errs"
 	"fooder/objects"
@@ -61,6 +62,7 @@ func (c *Chat) CreateEventForUser(e *Event, userID string) (*Event, error) {
 	case objects.SelectEventType:
 		desiredEvent := c.GetEvent(e.EventID)
 		if desiredEvent == nil {
+			fmt.Println("No event 2")
 			return nil, errs.ErrNotFound
 		}
 		if err := desiredEvent.ParseEvent(); err != nil {
@@ -100,6 +102,7 @@ func (c *Chat) CreateEventForUser(e *Event, userID string) (*Event, error) {
 	case objects.RatingEventType:
 		desiredEvent := c.GetEvent(e.EventID)
 		if desiredEvent == nil {
+			fmt.Println("No event")
 			return nil, errs.ErrNotFound
 		}
 		if err := desiredEvent.ParseEvent(); err != nil {

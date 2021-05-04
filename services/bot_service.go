@@ -23,7 +23,7 @@ func (bs *BotService) RespondForEvent(c *models.Chat, e *models.Event, user *mod
 	}
 
 	for _, event := range events {
-		if err := c.AddEvent(event, "bot"); err != nil {
+		if err := c.AddEventByBot(event); err != nil {
 			return nil, err
 		}
 	}

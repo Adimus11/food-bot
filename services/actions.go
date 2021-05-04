@@ -58,7 +58,6 @@ func (bs *BotService) actionForState(e *models.Event, state string, user *models
 			break
 		}
 
-		// TODO: Add dish selection
 		userResponse := &objects.MessageEvent{}
 		if err = json.Unmarshal(e.Body, &userResponse); err != nil {
 			return nil, "", err
@@ -94,14 +93,17 @@ func (bs *BotService) actionForState(e *models.Event, state string, user *models
 			response = append(response, msg)
 
 			dishSelection := &objects.DishSelection{
-				Options: make([]*objects.Option, 0, len(dishesh)),
+				Options: make([]*objects.Option, 0, 3),
 			}
 
 			for index, dish := range dishesh {
+				if index >= 3 {
+					break
+				}
 				dishSelection.Options = append(dishSelection.Options, &objects.Option{
 					OptionID:   index,
 					OptionText: dish.Title,
-					DishID:     dish.Title,
+					DishID:     dish.DishID,
 				})
 			}
 
@@ -133,7 +135,7 @@ func (bs *BotService) actionForState(e *models.Event, state string, user *models
 			return nil, "", err
 		}
 
-		userMsg, err := bs.getMessageEventForAuthor(fmt.Sprint("Hi I would like `%s` for my dish", dish.Title), user.UserID)
+		userMsg, err := bs.getMessageEventForAuthor(fmt.Sprintf("Hi I would like `%s` for my dish", dish.Title), user.UserID)
 		if err != nil {
 			return nil, "", err
 		}
@@ -186,7 +188,13 @@ func (bs *BotService) actionForState(e *models.Event, state string, user *models
 			return nil, "", err
 		}
 
-		msg, err := bs.getMessageEvent("Thanks for you opinion, remember I'm always here for you to help!")
+		msg, err := bs.getMessageEventForAuthor(fmt.Sprintf("I think it's solid `%d`", *userEvent.Rating), user.UserID)
+		if err != nil {
+			return nil, "", err
+		}
+		response = append(response, msg)
+
+		msg, err = bs.getMessageEvent("Thanks for you opinion, remember I'm always here for you to help!")
 		if err != nil {
 			return nil, "", err
 		}
@@ -198,6 +206,13 @@ func (bs *BotService) actionForState(e *models.Event, state string, user *models
 		switch state {
 		case models.WaitingForChoosingDish:
 			msg, err := bs.getMessageEvent("Please use buttons first, so I can send you dish you want")
+			if err != nil {
+				return nil, "", err
+			}
+			response = append(response, msg)
+
+		case models.WaitingForReview:
+			msg, err := bs.getMessageEvent("Please rate dish first using rating selection!")
 			if err != nil {
 				return nil, "", err
 			}
