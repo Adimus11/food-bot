@@ -10,9 +10,30 @@ import (
 	"time"
 )
 
-func (bs *BotService) actionForState(e *models.Event, state string) (*models.Event, string, error) {
+func (bs *BotService) getMessageEvent(msg string) (*models.Event, error) {
+	return bs.getMessageEventForAuthor(msg, "bot")
+}
+
+func (bs *BotService) getMessageEventForAuthor(msg, authorID string) (*models.Event, error) {
+	msgObject := &objects.MessageEvent{
+		Message: msg,
+	}
+
+	data, err := json.Marshal(msgObject)
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.Event{
+		Type:     objects.MessageEventType,
+		AuthorID: authorID,
+		Body:     data,
+	}, nil
+}
+
+func (bs *BotService) actionForState(e *models.Event, state string) ([]*models.Event, string, error) {
 	newState := ""
-	response := &models.Event{}
+	response := make([]*models.Event, 0, 2)
 	var err error
 
 	switch state {
@@ -21,20 +42,13 @@ func (bs *BotService) actionForState(e *models.Event, state string) (*models.Eve
 			err = errs.ErrWrongMsgTypeInState
 			break
 		}
-		msg := &objects.MessageEvent{
-			Message: "Hi! From which ingredients do you want to eat?",
-		}
 
-		data, err := json.Marshal(msg)
+		msg, err := bs.getMessageEvent("Hi! From which ingredients do you want to eat?")
 		if err != nil {
 			return nil, "", err
 		}
 
-		response = &models.Event{
-			Type:     objects.MessageEventType,
-			AuthorID: "bot",
-			Body:     data,
-		}
+		response = append(response, msg)
 		newState = models.WaitingForIngredients
 
 	case models.WaitingForIngredients:
@@ -59,24 +73,26 @@ func (bs *BotService) actionForState(e *models.Event, state string) (*models.Eve
 			return nil, "", err
 		}
 
-		var (
-			responseEvent     interface{}
-			responseEventType string
-		)
 		if len(res.Ingridients) == 0 {
-			responseEvent = &objects.MessageEvent{
-				Message: "Sorry, I couldn't recognize any ingredients in your response, could you repeat?",
+			msg, err := bs.getMessageEvent("Sorry, I couldn't recognize any ingredients in your response, could you repeat?")
+			if err != nil {
+				return nil, "", err
 			}
-			responseEventType = objects.MessageEventType
 			newState = state
+			response = append(response, msg)
 		} else {
 			dishesh, err := bs.dishService.GetDishesForIngredients(res.Ingridients)
 			if err != nil {
 				return nil, "", err
 			}
 
+			msg, err := bs.getMessageEvent("This is what I found for you!")
+			if err != nil {
+				return nil, "", err
+			}
+			response = append(response, msg)
+
 			dishSelection := &objects.DishSelection{
-				Message: "This is what I found for you!",
 				Options: make([]*objects.Option, 0, len(dishesh)),
 			}
 
@@ -88,29 +104,24 @@ func (bs *BotService) actionForState(e *models.Event, state string) (*models.Eve
 				})
 			}
 
-			responseEvent = dishSelection
-			responseEventType = objects.SelectEventType
+			data, err := json.Marshal(dishSelection)
+			if err != nil {
+				return nil, "", err
+			}
+
+			response = append(response, &models.Event{
+				Type:     objects.SelectEventType,
+				AuthorID: "bot",
+				Body:     data,
+			})
 			newState = models.WaitingForChoosingDish
 		}
-
-		data, err := json.Marshal(responseEvent)
-		if err != nil {
-			return nil, "", err
-		}
-
-		response = &models.Event{
-			Type:     responseEventType,
-			AuthorID: "bot",
-			Body:     data,
-		}
-
 	case models.WaitingForChoosingDish:
 		if e.Type != objects.SelectEventType {
 			err = errs.ErrWrongMsgTypeInState
 			break
 		}
 
-		//TODO: select dish and return it
 		userEvent := &objects.DishSelection{}
 		if err := json.Unmarshal(e.Body, userEvent); err != nil {
 			return nil, "", err
@@ -126,67 +137,46 @@ func (bs *BotService) actionForState(e *models.Event, state string) (*models.Eve
 			return nil, "", err
 		}
 
-		response = &models.Event{
+		response = append(response, &models.Event{
 			Type:     objects.CardEventType,
 			AuthorID: "bot",
 			Body:     data,
-		}
-		newState = models.WaitingForReview
+		})
+		newState = models.DishSelected
+
+	case models.DishSelected:
+		//Todo Sent dish and opinion request
+
 	case models.WaitingForReview:
 		if e.Type != objects.MessageEventType {
 			err = errs.ErrWrongMsgTypeInState
 			break
 		}
-		msg := &objects.MessageEvent{
-			Message: "Thanks for you opinion, remember I'm always here for you to help",
-		}
 
-		data, err := json.Marshal(msg)
+		msg, err := bs.getMessageEvent("Thanks for you opinion, remember I'm always here for you to help")
 		if err != nil {
 			return nil, "", err
 		}
-
-		response = &models.Event{
-			Type:     objects.MessageEventType,
-			AuthorID: "bot",
-			Body:     data,
-		}
+		response = append(response, msg)
 		newState = models.ChatStarted
 	}
 
 	if err == errs.ErrWrongMsgTypeInState {
 		switch state {
 		case models.WaitingForChoosingDish:
-			msg := &objects.MessageEvent{
-				Message: "Please use buttons first, so I can send you dish you want",
-			}
-
-			data, err := json.Marshal(msg)
+			msg, err := bs.getMessageEvent("Please use buttons first, so I can send you dish you want")
 			if err != nil {
 				return nil, "", err
 			}
-
-			response = &models.Event{
-				Type:     objects.MessageEventType,
-				AuthorID: "bot",
-				Body:     data,
-			}
+			response = append(response, msg)
 
 		default:
-			msg := &objects.MessageEvent{
-				Message: "Sorry I expected you to send me a message to understood you",
-			}
-
-			data, err := json.Marshal(msg)
+			msg, err := bs.getMessageEvent("Sorry I expected you to send me a message to understood you")
 			if err != nil {
 				return nil, "", err
 			}
+			response = append(response, msg)
 
-			response = &models.Event{
-				Type:     objects.MessageEventType,
-				AuthorID: "bot",
-				Body:     data,
-			}
 		}
 		newState = state
 	} else if err != nil {

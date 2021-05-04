@@ -12,6 +12,7 @@ import (
 type Event struct {
 	gorm.Model  `json:"-"`
 	ChatID      string          `json:"-"`
+	EventID     string          `json:"event_id"`
 	Type        string          `json:"type"`
 	AuthorID    string          `json:"author_id"`
 	Body        json.RawMessage `json:"body"`

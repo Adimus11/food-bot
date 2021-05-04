@@ -73,5 +73,14 @@ func GetRoutes(c *config.Config, api *API) Routes {
 			),
 			Middlewares: append(NewBaseMiddlewares(), middlewares.NewAuthMiddleware(config.RetreiveConfig())),
 		},
+		&Route{
+			Name:    "Add dish",
+			Method:  http.MethodPost,
+			Pattern: "/dish",
+			HandlerFunc: utils.HandlerWrapper(
+				methods.NewAddDish(api.DishRepository),
+			),
+			Middlewares: NewBaseMiddlewares(),
+		},
 	}
 }

@@ -110,6 +110,7 @@ Events are form of thing appeared in chat, their general format is:
 {
     "type": "event_type", // Could be on of described below
     "author_id": "bot" // could be user uuidv4 id or `bot`
+    "event_id": "..." // uuid v4 id
     "body": {
         ...
     }
@@ -148,7 +149,6 @@ Type: `select`
 
 ```
 {
-    "message": "Message with options".
     "options": [
         {
             "option_id": 1,

@@ -13,6 +13,7 @@ const (
 	ChatStarted            = "chat_started"
 	WaitingForIngredients  = "chat_ingredients"
 	WaitingForChoosingDish = "chat_dish_choosing"
+	DishSelected           = "chat_dish_selected"
 	WaitingForReview       = "chat_review"
 	ChatInactive           = "chat_inactive"
 )
@@ -40,6 +41,7 @@ func (c *Chat) AddEvent(e *Event, userID string) error {
 	e.CreationTimestamp = uint64(time.Now().Nanosecond())
 	e.AuthorID = userID
 	e.ChatID = c.ChatID
+	e.EventID = uuid.New().String()
 
 	if err := c.DB.Save(e).Error; err != nil {
 		return err

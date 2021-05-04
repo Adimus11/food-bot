@@ -84,13 +84,13 @@ func (t *SendEventRoute) Do(ctx context.Context, vars map[string]string, payload
 		return nil, err
 	}
 
-	responseEvent, err := t.botService.RespondForEvent(chat, event.Event)
+	responseEvents, err := t.botService.RespondForEvent(chat, event.Event)
 	if err != nil {
 		return nil, err
 	}
 
 	return &utils.ApiResponse{
 		StatusCode: http.StatusOK,
-		Response:   []*models.Event{responseEvent},
+		Response:   responseEvents,
 	}, nil
 }

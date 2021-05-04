@@ -1,5 +1,13 @@
 package objects
 
+// Predefined responses
+
+type BasicResponse struct {
+	Status string `json:"status"`
+}
+
+// Chat events
+
 const MessageEventType = "message"
 
 type MessageEvent struct {
@@ -46,7 +54,6 @@ type StatusResponse struct {
 const SelectEventType = "select"
 
 type DishSelection struct {
-	Message          string    `json:"message,omitempty"`
 	Options          []*Option `json:"options,omitempty"`
 	SelectedOptionID string    `json:"selected_option_id"`
 }
