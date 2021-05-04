@@ -10,6 +10,7 @@ var (
 	ErrTokenNotInCtx           = errors.New("could not get token from ctx")
 	ErrWrongInterfaceAssertion = errors.New("wrong interfacer assertion")
 	ErrWrongMsgTypeInState     = errors.New("Couldn't this message type")
+	ErrUnavailableTypeForUser  = errors.New("Unavailable event for user")
 )
 
 func WrongInterfaceError(object interface{}, target string) error {

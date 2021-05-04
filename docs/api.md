@@ -110,7 +110,7 @@ Events are form of thing appeared in chat, their general format is:
 {
     "type": "event_type", // Could be on of described below
     "author_id": "bot" // could be user uuidv4 id or `bot`
-    "event_id": "..." // uuid v4 id
+    "event_id": "..." // uuid v4 id, required for user sending `select` or `rating_event`
     "body": {
         ...
     }
@@ -165,7 +165,7 @@ If user clicks selected type then only "selected_option_id" should be sent
 
 
 
-### Rating Event [not implemented]
+### Rating Event
 
 Type: `rating_event`
 

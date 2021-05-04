@@ -16,14 +16,15 @@ import (
 type SendEventRoute struct {
 	cr         *repositories.ChatsRepository
 	botService *services.BotService
+	ur         *repositories.UsersRepository
 }
 
 type SendEventRoutePayload struct {
 	*models.Event
 }
 
-func NewSendEventRoute(cr *repositories.ChatsRepository, botService *services.BotService) *SendEventRoute {
-	return &SendEventRoute{cr, botService}
+func NewSendEventRoute(cr *repositories.ChatsRepository, botService *services.BotService, ur *repositories.UsersRepository) *SendEventRoute {
+	return &SendEventRoute{cr, botService, ur}
 }
 
 func (t *SendEventRoute) Payload() interface{} {
@@ -75,6 +76,11 @@ func (t *SendEventRoute) Do(ctx context.Context, vars map[string]string, payload
 		return nil, err
 	}
 
+	user, err := t.ur.GetUser(token.UserId)
+	if err != nil {
+		return nil, err
+	}
+
 	chat, err := t.cr.GetOrCreateChat(token.UserId)
 	if err != nil {
 		return nil, err
@@ -84,7 +90,7 @@ func (t *SendEventRoute) Do(ctx context.Context, vars map[string]string, payload
 		return nil, err
 	}
 
-	responseEvents, err := t.botService.RespondForEvent(chat, event.Event)
+	responseEvents, err := t.botService.RespondForEvent(chat, event.Event, user)
 	if err != nil {
 		return nil, err
 	}

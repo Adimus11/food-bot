@@ -59,6 +59,13 @@ func (e *Event) ValidateEvent() error {
 			}
 		}
 	case *objects.RatingEvent:
+		if e.EventID == "" {
+			return &utils.ApiError{
+				StatusCode: http.StatusBadRequest,
+				Reason:     "`event_id` can't be empty",
+			}
+		}
+
 		if event.DishID == "" {
 			return &utils.ApiError{
 				StatusCode: http.StatusBadRequest,
@@ -78,7 +85,14 @@ func (e *Event) ValidateEvent() error {
 			}
 		}
 	case *objects.DishSelection:
-		if event.SelectedOptionID == "" {
+		if e.EventID == "" {
+			return &utils.ApiError{
+				StatusCode: http.StatusBadRequest,
+				Reason:     "`event_id` can't be empty",
+			}
+		}
+
+		if event.SelectedOptionID == nil {
 			return &utils.ApiError{
 				StatusCode: http.StatusBadRequest,
 				Reason:     "`selected_option_id` can't be empty",
@@ -91,5 +105,15 @@ func (e *Event) ValidateEvent() error {
 		}
 	}
 
+	return nil
+}
+
+func (e *Event) UpdateEventBody() error {
+	data, err := json.Marshal(e.ParsedEvent)
+	if err != nil {
+		return err
+	}
+
+	e.Body = data
 	return nil
 }

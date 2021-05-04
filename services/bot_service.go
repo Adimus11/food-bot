@@ -16,8 +16,8 @@ func NewBotService(chatsService *repositories.ChatsRepository, nlpClient pb.Ingr
 	return &BotService{chatsService: chatsService, nlpClient: nlpClient, dishService: dishService}
 }
 
-func (bs *BotService) RespondForEvent(c *models.Chat, e *models.Event) ([]*models.Event, error) {
-	events, newState, err := bs.actionForState(e, c.State)
+func (bs *BotService) RespondForEvent(c *models.Chat, e *models.Event, user *models.User) ([]*models.Event, error) {
+	events, newState, err := bs.actionForState(e, c.State, user)
 	if err != nil {
 		return nil, err
 	}

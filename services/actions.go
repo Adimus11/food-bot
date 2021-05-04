@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"fooder/errs"
 	"fooder/objects"
 	"fooder/repositories/models"
@@ -31,7 +32,7 @@ func (bs *BotService) getMessageEventForAuthor(msg, authorID string) (*models.Ev
 	}, nil
 }
 
-func (bs *BotService) actionForState(e *models.Event, state string) ([]*models.Event, string, error) {
+func (bs *BotService) actionForState(e *models.Event, state string, user *models.User) ([]*models.Event, string, error) {
 	newState := ""
 	response := make([]*models.Event, 0, 2)
 	var err error
@@ -122,15 +123,21 @@ func (bs *BotService) actionForState(e *models.Event, state string) ([]*models.E
 			break
 		}
 
-		userEvent := &objects.DishSelection{}
-		if err := json.Unmarshal(e.Body, userEvent); err != nil {
-			return nil, "", err
+		userEvent, ok := e.ParsedEvent.(*objects.DishSelection)
+		if !ok {
+			return nil, "", errs.WrongInterfaceError(e.ParsedEvent, "*objects.DishSelection")
 		}
 
-		dish, err := bs.dishService.GetDish(userEvent.SelectedOptionID)
+		dish, err := bs.dishService.GetDish(userEvent.GetDishIDForOption())
 		if err != nil {
 			return nil, "", err
 		}
+
+		userMsg, err := bs.getMessageEventForAuthor(fmt.Sprint("Hi I would like `%s` for my dish", dish.Title), user.UserID)
+		if err != nil {
+			return nil, "", err
+		}
+		response = append(response, userMsg)
 
 		data, err := json.Marshal(dish.ToCard())
 		if err != nil {
@@ -142,18 +149,44 @@ func (bs *BotService) actionForState(e *models.Event, state string) ([]*models.E
 			AuthorID: "bot",
 			Body:     data,
 		})
-		newState = models.DishSelected
 
-	case models.DishSelected:
-		//Todo Sent dish and opinion request
+		botMsg, err := bs.getMessageEvent("How you liked your meal?")
+		if err != nil {
+			return nil, "", err
+		}
+		response = append(response, botMsg)
+
+		ratingEvent := &objects.RatingEvent{
+			DishID: dish.DishID,
+		}
+		data, err = json.Marshal(ratingEvent)
+		if err != nil {
+			return nil, "", err
+		}
+		response = append(response, &models.Event{
+			Type:     objects.RatingEventType,
+			AuthorID: "bot",
+			Body:     data,
+		})
+
+		newState = models.WaitingForReview
 
 	case models.WaitingForReview:
-		if e.Type != objects.MessageEventType {
+		if e.Type != objects.RatingEventType {
 			err = errs.ErrWrongMsgTypeInState
 			break
 		}
 
-		msg, err := bs.getMessageEvent("Thanks for you opinion, remember I'm always here for you to help")
+		userEvent, ok := e.ParsedEvent.(*objects.RatingEvent)
+		if !ok {
+			return nil, "", errs.WrongInterfaceError(e.ParsedEvent, "*objects.DishSelection")
+		}
+
+		if err := user.RateDish(userEvent.DishID, *userEvent.Rating); err != nil {
+			return nil, "", err
+		}
+
+		msg, err := bs.getMessageEvent("Thanks for you opinion, remember I'm always here for you to help!")
 		if err != nil {
 			return nil, "", err
 		}

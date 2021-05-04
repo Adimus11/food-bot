@@ -7,10 +7,19 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type User struct {
+type RatedDish struct {
 	gorm.Model
 	UserID string
-	ChatID string
+	DishID string
+	Rate   int
+}
+
+type User struct {
+	gorm.Model
+	DB           *gorm.DB `sql:"-"`
+	UserID       string
+	ChatID       string
+	RatedDishesh []*RatedDish
 }
 
 func (u *User) GetToken() string {
@@ -19,4 +28,14 @@ func (u *User) GetToken() string {
 	tokenString, _ := token.SignedString([]byte(config.RetreiveConfig().Auth.JWTPassword))
 
 	return tokenString
+}
+
+func (u *User) RateDish(dishID string, rating int) error {
+	dr := &RatedDish{
+		UserID: u.UserID,
+		DishID: dishID,
+		Rate:   rating,
+	}
+
+	return u.DB.Save(dr).Error
 }

@@ -31,14 +31,6 @@ type ChatIdleEvent struct {
 	Reason string `json:"reason"`
 }
 
-var EventTypes = []string{
-	MessageEventType,
-	CardEventType,
-	RatingEventType,
-	ChatIdleEventType,
-	SelectEventType,
-}
-
 type StatusResponse struct {
 	Status string `json:"status"`
 }
@@ -47,11 +39,33 @@ const SelectEventType = "select"
 
 type DishSelection struct {
 	Options          []*Option `json:"options,omitempty"`
-	SelectedOptionID string    `json:"selected_option_id"`
+	SelectedOptionID *int      `json:"selected_option_id"`
+}
+
+func (ds *DishSelection) GetDishIDForOption() string {
+	if ds.SelectedOptionID == nil {
+		return ""
+	}
+
+	for _, option := range ds.Options {
+		if option.OptionID == *ds.SelectedOptionID {
+			return option.DishID
+		}
+	}
+
+	return ""
 }
 
 type Option struct {
 	OptionID   int    `json:"option_id"`
 	OptionText string `json:"option_text"`
 	DishID     string `json:"dish_id"`
+}
+
+var EventTypes = []string{
+	MessageEventType,
+	CardEventType,
+	RatingEventType,
+	ChatIdleEventType,
+	SelectEventType,
 }
