@@ -165,23 +165,13 @@ If user clicks selected type then only "selected_option_id" should be sent
 
 
 
-### Rating Requested [not implemented]
+### Rating Event [not implemented]
 
-Type: `rating_requested`
-
-```
-{
-    "dish_id": "XXXX"
-}
-```
-
-### Rating Set [not implemented]
-
-Type: `rating_set`
+Type: `rating_event`
 
 ```
 {
-    "dish_id": "XXXX"
+    "dish_id": "XXXX",
     "rating": 4 // from 1-5
 }
 ```

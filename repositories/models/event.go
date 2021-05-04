@@ -34,7 +34,7 @@ func (e *Event) ParseEvent() error {
 		eventBody = &objects.ChatIdleEvent{}
 	case objects.MessageEventType:
 		eventBody = &objects.MessageEvent{}
-	case objects.RatingRequestedEventType, objects.RatingSetEventType:
+	case objects.RatingEventType:
 		eventBody = &objects.RatingEvent{}
 	}
 
@@ -59,6 +59,31 @@ func (e *Event) ValidateEvent() error {
 			}
 		}
 	case *objects.RatingEvent:
+		if event.DishID == "" {
+			return &utils.ApiError{
+				StatusCode: http.StatusBadRequest,
+				Reason:     "`dish_id` can't be empty",
+			}
+		}
+		if event.Rating == nil {
+			return &utils.ApiError{
+				StatusCode: http.StatusBadRequest,
+				Reason:     "`rating` can't be empty",
+			}
+		}
+		if *event.Rating <= 0 || *event.Rating > 5 {
+			return &utils.ApiError{
+				StatusCode: http.StatusBadRequest,
+				Reason:     "`rating` should be from [1-5]",
+			}
+		}
+	case *objects.DishSelection:
+		if event.SelectedOptionID == "" {
+			return &utils.ApiError{
+				StatusCode: http.StatusBadRequest,
+				Reason:     "`selected_option_id` can't be empty",
+			}
+		}
 	default:
 		return &utils.ApiError{
 			StatusCode: http.StatusBadRequest,

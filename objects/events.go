@@ -1,11 +1,5 @@
 package objects
 
-// Predefined responses
-
-type BasicResponse struct {
-	Status string `json:"status"`
-}
-
 // Chat events
 
 const MessageEventType = "message"
@@ -24,8 +18,7 @@ type CardEvent struct {
 	Link        string `json:"link"`
 }
 
-const RatingRequestedEventType = "rating_requested"
-const RatingSetEventType = "rating_set"
+const RatingEventType = "rating_event"
 
 type RatingEvent struct {
 	DishID string `json:"dish_id"`
@@ -41,8 +34,7 @@ type ChatIdleEvent struct {
 var EventTypes = []string{
 	MessageEventType,
 	CardEventType,
-	RatingRequestedEventType,
-	RatingSetEventType,
+	RatingEventType,
 	ChatIdleEventType,
 	SelectEventType,
 }
