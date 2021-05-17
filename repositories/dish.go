@@ -29,7 +29,7 @@ func (d *dishPair) Less(i, j int) bool {
 	jPenalty := d.penalties[d.dishesh[j].dish.DishID]
 
 	if jPenalty < iPenalty {
-		return true
+		return false
 	}
 
 	return d.dishesh[i].score < d.dishesh[j].score
