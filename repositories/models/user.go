@@ -39,3 +39,13 @@ func (u *User) RateDish(dishID string, rating int) error {
 
 	return u.DB.Save(dr).Error
 }
+
+func (u *User) GetLastRatings() ([]*RatedDish, error) {
+	var ratings []*RatedDish
+
+	if err := u.DB.Limit(5).Find(&ratings, "user_id = ?", u.UserID).Error; err != nil {
+		return nil, err
+	}
+
+	return ratings, nil
+}

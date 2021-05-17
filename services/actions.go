@@ -81,7 +81,7 @@ func (bs *BotService) actionForState(e *models.Event, state string, user *models
 			newState = state
 			response = append(response, msg)
 		} else {
-			dishesh, err := bs.dishService.GetDishesForIngredients(res.Ingridients)
+			dishesh, err := bs.dishService.GetDishesForIngredients(user, res.Ingridients)
 			if err != nil {
 				return nil, "", err
 			}

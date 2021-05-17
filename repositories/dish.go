@@ -15,27 +15,37 @@ type pair struct {
 	dish  *models.Dish
 }
 
-type dishPair []*pair
-
-func (d dishPair) Len() int {
-	return len(d)
+type dishPair struct {
+	dishesh   []*pair
+	penalties map[string]int
 }
 
-func (d dishPair) Less(i, j int) bool {
-	return d[i].score < d[j].score
+func (d *dishPair) Len() int {
+	return len(d.dishesh)
 }
 
-func (d dishPair) Swap(i, j int) {
-	tmp := d[i]
-	d[i] = d[j]
-	d[j] = tmp
+func (d *dishPair) Less(i, j int) bool {
+	iPenalty := d.penalties[d.dishesh[i].dish.DishID]
+	jPenalty := d.penalties[d.dishesh[j].dish.DishID]
+
+	if jPenalty > iPenalty {
+		return false
+	}
+
+	return d.dishesh[i].score < d.dishesh[j].score
 }
 
-func (d dishPair) getTop() []*models.Dish {
+func (d *dishPair) Swap(i, j int) {
+	tmp := d.dishesh[i]
+	d.dishesh[i] = d.dishesh[j]
+	d.dishesh[j] = tmp
+}
+
+func (d *dishPair) getTop() []*models.Dish {
 	sort.Sort(d)
 	topValues := make([]*models.Dish, 0, 4)
 
-	for _, pair := range d {
+	for _, pair := range d.dishesh {
 		topValues = append(topValues, pair.dish)
 	}
 
@@ -60,13 +70,16 @@ func (dr *DishesRepository) GetDishes() ([]*models.Dish, error) {
 	return dishes, err
 }
 
-func (dr *DishesRepository) GetDishesForIngredients(ingredients []string) ([]*models.Dish, error) {
+func (dr *DishesRepository) GetDishesForIngredients(user *models.User, ingredients []string) ([]*models.Dish, error) {
 	dishesh, err := dr.GetDishes()
 	if err != nil {
 		return nil, err
 	}
 
-	filtered := make(dishPair, 0, len(dishesh))
+	result := &dishPair{
+		dishesh:   make([]*pair, 0, len(dishesh)),
+		penalties: make(map[string]int, 5),
+	}
 
 	for _, dish := range dishesh {
 		score := 0
@@ -77,13 +90,26 @@ func (dr *DishesRepository) GetDishesForIngredients(ingredients []string) ([]*mo
 			}
 		}
 
-		filtered = append(filtered, &pair{
+		result.dishesh = append(result.dishesh, &pair{
 			score: score,
 			dish:  dish,
 		})
 	}
 
-	return filtered.getTop(), nil
+	ratings, err := user.GetLastRatings()
+	if err != nil {
+		return nil, err
+	}
+
+	for i, rating := range ratings {
+		if _, exists := result.penalties[rating.DishID]; !exists {
+			result.penalties[rating.DishID] = 0
+		}
+
+		result.penalties[rating.DishID] += (len(ratings) - i)
+	}
+
+	return result.getTop(), nil
 }
 
 func (dr *DishesRepository) GetDish(dishID string) (*models.Dish, error) {
