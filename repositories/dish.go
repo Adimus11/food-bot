@@ -28,8 +28,8 @@ func (d *dishPair) Less(i, j int) bool {
 	iPenalty := d.penalties[d.dishesh[i].dish.DishID]
 	jPenalty := d.penalties[d.dishesh[j].dish.DishID]
 
-	if jPenalty > iPenalty {
-		return false
+	if jPenalty < iPenalty {
+		return true
 	}
 
 	return d.dishesh[i].score < d.dishesh[j].score
@@ -107,6 +107,10 @@ func (dr *DishesRepository) GetDishesForIngredients(user *models.User, ingredien
 		}
 
 		result.penalties[rating.DishID] += (len(ratings) - i)
+	}
+
+	for dish, penalty := range result.penalties {
+		fmt.Printf("Dish %s with penalty: %d\n", dish, penalty)
 	}
 
 	return result.getTop(), nil
