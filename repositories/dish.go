@@ -29,7 +29,7 @@ func (d *dishPair) Less(i, j int) bool {
 	jPenalty := d.penalties[d.dishesh[j].dish.DishID]
 
 	if jPenalty > iPenalty {
-		return true
+		return false
 	}
 
 	return d.dishesh[i].score < d.dishesh[j].score
@@ -42,7 +42,7 @@ func (d *dishPair) Swap(i, j int) {
 }
 
 func (d *dishPair) getTop() []*models.Dish {
-	sort.Sort(d)
+	sort.Sort(sort.Reverse(d))
 	topValues := make([]*models.Dish, 0, 4)
 
 	for _, pair := range d.dishesh {
