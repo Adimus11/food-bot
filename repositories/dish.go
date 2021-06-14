@@ -83,7 +83,8 @@ func (dr *DishesRepository) GetDishesForIngredients(user *models.User, ingredien
 
 	for _, dish := range dishesh {
 		score := 0
-		dishIngrid := strings.Join(dish.Ingredients, ",")
+		dishIngrid := strings.Join(dish.Ingredients, " ")
+		fmt.Println(dishIngrid, strings.Join(ingredients, " "))
 		for _, userIngrd := range ingredients {
 			if strings.Contains(dishIngrid, userIngrd) {
 				score++
