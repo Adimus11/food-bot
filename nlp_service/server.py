@@ -26,8 +26,7 @@ class NLPService(communication_pb2_grpc.IngridientsServiceServicer):
     def GetIngridients(self, request, context):
 
         ingredients = []
-        for token in self.model(request.text):
-            if (token.head.pos_ == 'NOUN'):
+        for token in request.text.split():
                 word = str(token).lower()
                 if word in WORDS:
                     ingredients.append(word)
