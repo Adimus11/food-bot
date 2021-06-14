@@ -14,20 +14,23 @@ import re
 
 import en_core_web_sm
 
+from words import WORDS
+
 
 class NLPService(communication_pb2_grpc.IngridientsServiceServicer):
     """Provides methods that implement functionality of route guide server."""
 
     def __init__(self):
         self.model = en_core_web_sm.load()
-        self.measurements = re.compile(r'(bowl|bulb|cube|clove|cup|drop|ounce|oz|pinch|pound|teaspoon|tablespoon)s?')
 
     def GetIngridients(self, request, context):
 
         ingredients = []
         for token in self.model(request.text):
-            if (token.pos_ in ['NOUN', 'PROPN']) and (not self.measurements.match(token.text)):
-                ingredients.append(str(token))
+            if (token.head.pos_ == 'NOUN'):
+                word = str(token).lower()
+                if word in WORDS:
+                    ingredients.append(word)
 
         return communication_pb2.Ingridients(ingridients=ingredients)
 
